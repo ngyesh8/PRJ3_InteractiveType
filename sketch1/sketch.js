@@ -1,45 +1,51 @@
-/* This script was developed with the help of ChatGPT and is 
-   in the experimental phase as I attempt to figure out how
-   to have images snap into position
+/* This script was developed with the help of Claude
    
    The following prompts were used:
-    - Drag images and get the pieces to snap together when they 
-      are in the correct places. When all the pieces are 
-      solved, they will move into position to show the phrase. 
-      How do I get the snapping to work? This is what I have so 
-      far.
+   
+  - How to get the pieces to snap together when they are
+  dragged on top of the a piece in their corresponding group
+  - Help me figure out the coordinates of the images based on
+    my attached initial sketch.
+  – How to vertify that all pieces have been grouped?
+    Move them into the correct positions.
    */
 
 let images = [];
+let txt;
 let pieces = [];
 let groups = [];
 let dragGroup = null;    // the group currently being dragged
 let offsetX = 0;
 let offsetY = 0;
+let dragging = false;
+let puzzleComplete = false;
 
 const PIECE_SCALE = 0.5;
+const SNAP_DIST = 60;  // how close neccessary to snap (pixels)
 
 
 function preload() {
   for (let i = 1; i <= 14; i++) {
-    images.push(loadImage(i + ".png"));
+    images.push(loadImage("sketch1/" + i + ".png"));
   }
+  txt = loadFont("sketch1/SNPro-VariableFont_wght.ttf");
 }
 
 
 class Piece {
   
   constructor(img, tx, ty) { 
-  // tx, ty: changing later as final locations of pieces
+  // tx, ty: home position (centre) — where this piece lives in the final arrangement
     this.img = img;
     this.w = img.width * PIECE_SCALE;
     this.h = img.height * PIECE_SCALE;
 
-    this.x = random(0, width  - this.w);
-    this.y = random(0, height - this.h);
+    // Start at the home position; setup() will scatter them after
+    this.x = tx;
+    this.y = ty;
 
-    this.tx = tx;   // to find the final position (x)
-    this.ty = ty;   // to find the final position (y)
+    this.tx = tx;   // final position x (centre)
+    this.ty = ty;   // final position y (centre)
 
     this.group = null;  // not assigned yet
 
@@ -53,8 +59,12 @@ class Piece {
   }
 
   isMouseOver() {
-    return mouseX > this.x && mouseX < this.x + this.w &&
-           mouseY > this.y && mouseY < this.y + this.h;
+  return (
+    mouseX > this.x - this.w / 2 &&
+    mouseX < this.x + this.w / 2 &&
+    mouseY > this.y - this.h / 2 &&
+    mouseY < this.y + this.h / 2
+    );
   }
 }
 
@@ -96,10 +106,10 @@ class Group {
     this.vy = constrain(this.vy, -0.5, 0.5);
 
     // Bounce
-    let minX = min(this.members.map(p => p.x));
-    let minY = min(this.members.map(p => p.y));
-    let maxX = max(this.members.map(p => p.x + p.w));
-    let maxY = max(this.members.map(p => p.y + p.h));
+    let minX = min(this.members.map(p => p.x - p.w / 2));
+    let minY = min(this.members.map(p => p.y - p.h / 2));
+    let maxX = max(this.members.map(p => p.x + p.w / 2));
+    let maxY = max(this.members.map(p => p.y + p.h / 2));
     let gw = maxX - minX;
     let gh = maxY - minY;
 
@@ -133,54 +143,75 @@ class Group {
     }
   }
 
+  // Absorb another group. Incoming pieces are placed using their tx/ty offsets
+  // relative to this group's anchor, so they land in the correct relative positions.
   absorb(other) {
+    let anchor = this.members[0];
     for (let p of other.members) {
+      // Place p at: anchor's current position + (p's home offset from anchor's home)
+      p.x = anchor.x + (p.tx - anchor.tx);
+      p.y = anchor.y + (p.ty - anchor.ty);
       p.group = this;
       this.members.push(p);
     }
-    
     groups = groups.filter(g => g !== other);
-  }
-
- // check if positioning is correct
-  isSolved() {
-    return this.members.length === pieces.length &&
-           this.members.every(p => {
-             return abs(p.x - p.tx) < 2 && abs(p.y - p.ty) < 2;
-           });
   }
 }
 
 
 function setup() {
-  createCanvas(windowWidth, windowHeight);
+  createCanvas(1100, 620);
 
-
+  // tx, ty = home centre positions, matching the start_finish.png arrangement.
+  // ─────────────────────────────────────────────────────────────────────────
+  // 萬 (pieces 1–3)
+  // 事 (pieces 4–7)
+  // 如 (pieces 8–10)
+  // 意 (pieces 11–14)
+  //
+  // To reposition a piece, change its {x, y} below.
+  // Coordinates are the centre of the piece on the 1100×620 canvas.
+  // ─────────────────────────────────────────────────────────────────────────
   let targets = [
-    {x: 400, y: 200},
-    {x: 460, y: 200},
-    {x: 520, y: 200},
+    // 萬
+    {x: 347, y: 218},  // 1.png 
+    {x: 317, y: 287},  // 2.png 
+    {x: 382, y: 279},  // 3.png 
 
-    {x: 380, y: 300},
-    {x: 440, y: 300},
-    {x: 500, y: 300},
-    {x: 560, y: 300},
+    // 事
+    {x: 453, y: 268},  // 4.png 
+    {x: 510, y: 270},  // 5.png 
+    {x: 469, y: 331},  // 6.png 
+    {x: 508, y: 322},  // 7.png 
 
-    {x: 420, y: 400},
-    {x: 480, y: 400},
-    {x: 540, y: 400},
+    // 如
+    {x: 587, y: 225},  // 8.png 
+    {x: 576, y: 274},  // 9.png 
+    {x: 624, y: 271},  // 10.png 
 
-    {x: 450, y: 500},
-    {x: 510, y: 500},
-    {x: 570, y: 500},
-    {x: 630, y: 500}
+    // 意
+    {x: 719, y: 217},  // 11.png 
+    {x: 786, y: 222},  // 12.png 
+    {x: 733, y: 277},  // 13.png 
+    {x: 777, y: 267},  // 14.png
   ];
+
+  // Which pieces belong together (0-indexed). Used for snapping.
+  // Group 0=萬, 1=事, 2=如, 3=意
+  let groupIds = [0, 0, 0,  1, 1, 1, 1,  2, 2, 2,  3, 3, 3, 3];
 
   for (let i = 0; i < images.length; i++) {
     let p = new Piece(images[i], targets[i].x, targets[i].y);
+    p.groupId = groupIds[i];  // which character this piece belongs to
     pieces.push(p);
     let g = new Group(p);
     groups.push(g);
+  }
+
+  // Scatter all pieces to random positions
+  for (let p of pieces) {
+    p.x = random(p.w / 2, width  - p.w / 2);
+    p.y = random(p.h / 2, height - p.h / 2);
   }
 }
 
@@ -188,29 +219,146 @@ function setup() {
 function draw() {
   background("#387AFF");
 
-  for (let i = 0; i < groups.length; i++) {
-    let g = groups[i];
-    g.update();
+  // Check completion ONCE
+  if (!puzzleComplete && isPuzzleComplete()) {
+    puzzleComplete = true;
+
+    // stop all floating motion immediately
+    for (let g of groups) {
+      g.vx = 0;
+      g.vy = 0;
+    }
+  }
+
+  for (let g of groups) {
+
+    // Only float if not complete
+    if (!puzzleComplete) {
+      g.update();
+    }
+
+    // After completion, move pieces to final positions
+    if (puzzleComplete) {
+      let allSnapped = true;
+
+      for (let p of g.members) {
+        p.x = lerp(p.x, p.tx, 0.1);
+        p.y = lerp(p.y, p.ty, 0.1);
+
+        if (dist(p.x, p.y, p.tx, p.ty) > 0.5) {
+          allSnapped = false;
+        } else {
+          // snap exactly to avoid jitter
+          p.x = p.tx;
+          p.y = p.ty;
+        }
+      }
+
+      // once a group is fully in place, freeze it permanently
+      if (allSnapped) {
+        g.solved = true;
+      }
+    }
+
     g.display();
   }
+  // print text when completed
+  if (puzzleComplete) {
+      fill(255);
+      noStroke();
+      textAlign(CENTER);
+      textSize(30);
+      textFont(txt);
+      text("may everything go your way", width / 2, height /1.35);
+      }
 }
 
 
 function mousePressed() {
+  dragging = false;
+  dragGroup = null;
+
   for (let i = pieces.length - 1; i >= 0; i--) {
     let p = pieces[i];
-    if (!p.group.solved && p.isMouseOver()) {
+
+    if (p.isMouseOver()) {
       dragGroup = p.group;
-      offsetX = mouseX - p.group.anchorX;
-      offsetY = mouseY - p.group.anchorY;
+
+      offsetX = mouseX - dragGroup.anchorX;
+      offsetY = mouseY - dragGroup.anchorY;
+
+      dragging = true;
+
+      // bring group to front
+      groups = groups.filter(g => g !== dragGroup);
+      groups.push(dragGroup);
+
       break;
     }
   }
 }
 
 function mouseDragged() {
-  if (dragGroup) {
+  if (dragging && dragGroup) {
     dragGroup.moveTo(mouseX - offsetX, mouseY - offsetY);
   }
 }
 
+function mouseReleased() {
+  if (!dragging || !dragGroup) {
+    dragging = false;
+    dragGroup = null;
+    return;
+  }
+
+  // Check if the dropped group is close enough to snap with another group
+  // of the same character.
+  let dropped = dragGroup;
+  dragging = false;
+  dragGroup = null;
+
+  // All pieces in the dropped group must share a groupId
+  let gid = dropped.members[0].groupId;
+  if (!dropped.members.every(p => p.groupId === gid)) return;
+
+  // Find the nearest other group that contains pieces of the same character
+  let best = null;
+  let bestDist = Infinity;
+
+  for (let g of groups) {
+    if (g === dropped) continue;
+    // Target group must also be a pure same-character group
+    if (!g.members.every(p => p.groupId === gid)) continue;
+
+    // Distance between the two groups' anchor pieces
+    let d = dist(dropped.anchorX, dropped.anchorY, g.anchorX, g.anchorY);
+    if (d < SNAP_DIST && d < bestDist) {
+      best = g;
+      bestDist = d;
+    }
+  }
+
+  if (best) {
+    best.absorb(dropped);
+  }
+}
+
+function isPuzzleComplete() {
+  // checks the expected size of character, aka. how many images are in the group that makes up a character 
+  let expectedSizes = { // this is the "expected"
+    0: 3, // 萬
+    1: 4, // 事
+    2: 3, // 如
+    3: 4  // 意
+  };
+
+  for (let g of groups) { //loop compares if match /w expected
+    let g_id = g.members[0].groupId;
+    if (g.members.length !== expectedSizes[g_id]) {
+      return false;
+    }
+  }
+  // if pass
+  return true;
+  
+}

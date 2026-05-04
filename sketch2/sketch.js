@@ -39,8 +39,8 @@ function setup() {
 }
 
 function preload() {
-  c = loadImage("nomnom2.gif");
-  txt = loadFont("SNPro-VariableFont_wght.ttf");
+  c = loadImage("sketch2/nomnom2.gif");
+  txt = loadFont("sketch2/SNPro-VariableFont_wght.ttf");
 }
 
 function windowResized() {
