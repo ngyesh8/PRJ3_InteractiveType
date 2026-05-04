@@ -26,16 +26,15 @@
             </div>
 
             <div class="right">
-                <p><br><br>Cantonese is a withering diaspora that is slowly fading away. <br>
-                    To me, it also reflects a part of my identity, childhood, and relationship with my parents, which
-                    are
-                    becoming lost as I approach the broader modern world, a world in which a new collective Chinese
-                    image is becoming dominant.
-                    This project is a homage from a descendant to the complex and convoluted relationship
-                    that help Cantonese endure as the old but colorful language and culture...</p>
+                <p><br><br>The Cantonese diaspora is marked by an old yet colorful vernacular. To me, the language
+                    reflects a key part of my distinctive culture, childhood, and relationship with my parents—all of
+                    which are fading as my community approaches a broader modern world where Mandarin has become the
+                    default rendition of the collective Chinese identity. The dominant culture that has arisen from
+                    Mandarin is nearly foreign to me. As a Yue Chinese descendant, I believe it is part of my
+                    responsibility to carry on Cantonese and its many semi-archaic traditions.</p>
 
-                <p>And to the Yue Chinese ancestors in San Francisco,
-                    who paved the way for many future generations and are now being forgotten by time. </p>
+                <p>This project is also a heartfelt letter to the Yue Chinese ancestors in San Francisco, who paved the
+                    way for many future generations and are now being forgotten by time.</p>
             </div>
 
             <img class="charm" src="images/charm.png" alt="charm">
@@ -45,14 +44,25 @@
         <nav class="bottom-nav">
             <div class="nav-left">
                 <span>Nav.</span>
-                <img src="images/home-icon.png" alt="home-icon">
+                <a href="index.html"><img class="home-icon" src="images/home-icon.png" alt="home-icon"></a>
             </div>
             <div class="nav-right">
-                <a href="wish1.html" class="nav-link active">1</a>
+                <a href="wish1.html" class="nav-link">1</a>
                 <a href="wish2.html" class="nav-link">2</a>
                 <a href="wish3.html" class="nav-link">3</a>
             </div>
         </nav>
+
+        <script>
+            const currentPage =
+                window.location.pathname.split("/").pop() || "index.html";
+
+            document.querySelectorAll(".nav-link, .home-link").forEach(link => {
+                if (link.getAttribute("href") === currentPage) {
+                    link.classList.add("active");
+                }
+            });
+        </script>
     </div>
 
 </body>

@@ -6,7 +6,7 @@
   dragged on top of the a piece in their corresponding group
   - Help me figure out the coordinates of the images based on
     my attached initial sketch.
-  – How to vertify that all pieces have been grouped?
+  – How to verify that all pieces have been grouped?
     Move them into the correct positions.
    */
 
@@ -28,7 +28,7 @@ function preload() {
   for (let i = 1; i <= 14; i++) {
     images.push(loadImage("sketch1/" + i + ".png"));
   }
-  txt = loadFont("sketch1/SNPro-VariableFont_wght.ttf");
+  txt = loadFont("sketch1/SNPro-Regular.ttf");
 }
 
 
@@ -160,7 +160,7 @@ class Group {
 
 
 function setup() {
-  createCanvas(1100, 620);
+  createCanvas(windowWidth, windowHeight);
 
   // tx, ty = home centre positions, matching the start_finish.png arrangement.
   // ─────────────────────────────────────────────────────────────────────────
@@ -174,26 +174,26 @@ function setup() {
   // ─────────────────────────────────────────────────────────────────────────
   let targets = [
     // 萬
-    {x: 347, y: 218},  // 1.png 
-    {x: 317, y: 287},  // 2.png 
-    {x: 382, y: 279},  // 3.png 
+    {x: 537, y: 318},  // 1.png 
+    {x: 507, y: 387},  // 2.png 
+    {x: 572, y: 379},  // 3.png 
 
     // 事
-    {x: 453, y: 268},  // 4.png 
-    {x: 510, y: 270},  // 5.png 
-    {x: 469, y: 331},  // 6.png 
-    {x: 508, y: 322},  // 7.png 
+    {x: 643, y: 368},  // 4.png 
+    {x: 700, y: 370},  // 5.png 
+    {x: 659, y: 431},  // 6.png 
+    {x: 698, y: 422},  // 7.png 
 
     // 如
-    {x: 587, y: 225},  // 8.png 
-    {x: 576, y: 274},  // 9.png 
-    {x: 624, y: 271},  // 10.png 
+    {x: 777, y: 325},  // 8.png 
+    {x: 766, y: 374},  // 9.png 
+    {x: 814, y: 371},  // 10.png 
 
     // 意
-    {x: 719, y: 217},  // 11.png 
-    {x: 786, y: 222},  // 12.png 
-    {x: 733, y: 277},  // 13.png 
-    {x: 777, y: 267},  // 14.png
+    {x: 909, y: 317},  // 11.png 
+    {x: 976, y: 322},  // 12.png 
+    {x: 923, y: 377},  // 13.png 
+    {x: 967, y: 367},  // 14.png
   ];
 
   // Which pieces belong together (0-indexed). Used for snapping.
@@ -269,7 +269,7 @@ function draw() {
       textAlign(CENTER);
       textSize(30);
       textFont(txt);
-      text("may everything go your way", width / 2, height /1.35);
+      text("may everything go your way", width / 2, height /1.46);
       }
 }
 

@@ -16,7 +16,7 @@ body {
 .content {
   position: relative;
   flex: 1;
-  background: #FFEA9E;
+  background: #FFFBC0;
   padding: 80px 60px;
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -29,7 +29,7 @@ body {
 }
 
 .intro {
-  font-size: 24px;
+  font-size: 32px;
   line-height: 1.4;
   max-width: 500px;
 }
@@ -38,21 +38,21 @@ body {
   font-size: 18px;
   font-weight: 300;
   line-height: 1.6;
-  max-width: 460px;
+  max-width: 385px;
 }
 
 .charm {
   position: absolute;
-  top: 0px;
-  right: 35px;
-  width: 160px;
+  top: -15px;
+  right: 32px;
+  width: 240px;
 }
 
 .namecard {
   position: absolute;
   bottom: 60px;
-  left: 20px;
-  width: 600px;
+  left: 35px;
+  width: 500px;
 }
 
 .bottom-nav {
@@ -71,7 +71,7 @@ body {
 }
 
 .home-icon {
-  width: 28px;
+  width: 45px;
   cursor: pointer;
 }
 

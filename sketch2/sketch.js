@@ -40,7 +40,7 @@ function setup() {
 
 function preload() {
   c = loadImage("sketch2/nomnom2.gif");
-  txt = loadFont("sketch2/SNPro-VariableFont_wght.ttf");
+  txt = loadFont("sketch2/SNPro-Regular.ttf");
 }
 
 function windowResized() {
