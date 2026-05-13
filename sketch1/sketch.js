@@ -11,6 +11,12 @@
    */
 
 let images = [];
+let tofu;
+let tofu_x = 100;
+let tofu_y = 100;
+let tofu_xv = 2;
+let tofu_yv = 2;
+let facingLeft = true;
 let txt;
 let pieces = [];
 let groups = [];
@@ -29,6 +35,7 @@ function preload() {
     images.push(loadImage("sketch1/" + i + ".png"));
   }
   txt = loadFont("sketch1/SNPro-Regular.ttf");
+  tofu = loadImage("tofu.gif");
 }
 
 
@@ -218,6 +225,19 @@ function setup() {
 
 function draw() {
   background("#387AFF");
+  
+  tofu_x += tofu_xv;
+  tofu_y += tofu_yv;
+  
+  if (tofu_x < 50 || tofu_x > width-50) {
+    tofu_xv = -tofu_xv;
+  }
+  if (tofu_y < 50 || tofu_y > height-50) {
+    tofu_yv = -tofu_yv;
+  }
+  
+  imageMode(CENTER);
+  image(tofu, tofu_x, tofu_y, 250, 250);
 
   // Check completion ONCE
   if (!puzzleComplete && isPuzzleComplete()) {
