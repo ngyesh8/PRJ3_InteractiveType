@@ -35,7 +35,7 @@ function preload() {
     images.push(loadImage("sketch1/" + i + ".png"));
   }
   txt = loadFont("sketch1/SNPro-Regular.ttf");
-  tofu = loadImage("tofu.gif");
+  tofu = loadImage("sketch1/tofu.gif");
 }
 
 
@@ -225,14 +225,14 @@ function setup() {
 
 function draw() {
   background("#387AFF");
-  
+
   tofu_x += tofu_xv;
   tofu_y += tofu_yv;
   
   if (tofu_x < 50 || tofu_x > width-50) {
     tofu_xv = -tofu_xv;
   }
-  if (tofu_y < 50 || tofu_y > height-50) {
+  if (tofu_y < 50 || tofu_y > height-130) {
     tofu_yv = -tofu_yv;
   }
   

@@ -7,12 +7,12 @@
   - how to make a pill button?
    */
 const PHRASES = [
-  { src: '1.png', label: 'you got this!' },
-  { src: '2.png', label: 'we believe in you!' },
-  { src: '3.png', label: 'may your wishes come true' },
-  { src: '4.png', label: 'come & go safely' },
-  { src: '5.png', label: 'wishing you prosperity' },
-  { src: '6.png', label: 'good luck' },
+  { src: 'sketch3/1.png', label: 'you got this!' },
+  { src: 'sketch3/2.png', label: 'we believe in you!' },
+  { src: 'sketch3/3.png', label: 'may your wishes come true' },
+  { src: 'sketch3/4.png', label: 'come & go safely' },
+  { src: 'sketch3/5.png', label: 'wishing you prosperity' },
+  { src: 'sketch3/6.png', label: 'good luck' },
 ];
 
 const COLORS = [
@@ -36,7 +36,7 @@ let buttons = [];
 
 
 function preload() {
-  font = loadFont('SNPro-Regular.ttf');
+  font = loadFont('sketch3/SNPro-Regular.ttf');
   for (let i = 0; i < PHRASES.length; i++) {
     imgs[i] = loadImage(PHRASES[i].src);
   }
@@ -184,7 +184,7 @@ function buildButtons() {
 function drawUI() {
   // Bar background
   noStroke();
-  fill("#F2F2FA");
+  fill("#ffd3ac");
   rect(0, height - UI_H, width, UI_H);
 
   // Top border
@@ -198,27 +198,27 @@ function drawUI() {
   for (const btn of buttons) {
     const active = btn.i === currentIdx;
     if (active) {
-      noFill();
-      stroke(124, 92, 191); // purple
+      fill("#C6FC08");
+      stroke("#000000");
       strokeWeight(2);
     } else {
       fill(255);
-      stroke(26, 26, 26);
+      stroke("#000000");
       strokeWeight(2);
     }
     rect(btn.x, btn.y, btn.w, btn.h, btn.h / 2); // pill shape
-    fill(active ? color(124, 92, 191) : color(26, 26, 26));
+    fill(active ? color("#000000") : color("#000000"));
     noStroke();
     text(PHRASES[btn.i].label, btn.x + btn.w / 2, btn.y + btn.h / 2);
   }
 
   // hint text
-  fill(136);
+  fill(26, 26, 26);
   noStroke();
   textSize(12);
   textStyle(ITALIC);
   textAlign(RIGHT, CENTER);
-  text('press space to change color', width - 20, height - UI_H / 2);
+  text('[X] change color', width - 20, height - UI_H / 2);
   textStyle(NORMAL);
 }
 
@@ -235,7 +235,7 @@ function mousePressed() {
 }
 
 function keyPressed() {
-  if (key === ' ') {
+  if (key === 'x') {
     const last = COLORS.indexOf('#' + hex(red(currentColor), 2) + hex(green(currentColor), 2) + hex(blue(currentColor), 2));
     let next;
     do { next = floor(random(COLORS.length)); } while (next === last);
