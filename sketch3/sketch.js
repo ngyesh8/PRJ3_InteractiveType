@@ -1,4 +1,11 @@
-// ─── Config ────────────────────────────────────────────────────────────
+/* This script was developed with the help of Claude
+   
+   The following prompts were used:
+   
+  - how to make a paint brush that functions like a spray can?
+  – how do i make the paint disappear when switching between phases?
+  - how to make a pill button?
+   */
 const PHRASES = [
   { src: '1.png', label: 'you got this!' },
   { src: '2.png', label: 'we believe in you!' },
@@ -19,16 +26,15 @@ const BRUSH_DENSITY = 25;
 const MASK_W = 240;
 const MASK_H = 135;
 
-// ─── State ─────────────────────────────────────────────────────────────
-let imgs = [];           // p5 images loaded in preload
-let masks = [];          // p5.Graphics masks (MASK_W × MASK_H, greyscale)
-let paintLayer;          // p5.Graphics — persistent paint sits here
-let currentIdx = 5;      // default: good luck (index 5)
+let imgs = [];           
+let masks = [];          // Uint8Array masks (MASK_W × MASK_H): 1=paintable, 0=blocked
+let paintLayer;          
+let currentIdx = 5;      
 let currentColor;
 let font;
 let buttons = [];
 
-// ─── p5 lifecycle ──────────────────────────────────────────────────────
+
 function preload() {
   font = loadFont('SNPro-Regular.ttf');
   for (let i = 0; i < PHRASES.length; i++) {
@@ -43,12 +49,11 @@ function setup() {
 
   currentColor = color(COLORS[0]);
 
-  // Paint layer — drawn behind the phrase overlay
+  // paint layer — drawn behind the phrase overlay
   paintLayer = createGraphics(width, height);
   paintLayer.pixelDensity(1);
   paintLayer.background(255);
 
-  // Build a hit-test mask for every image from its alpha channel
   for (let i = 0; i < imgs.length; i++) {
     masks[i] = buildMask(imgs[i]);
   }
@@ -58,15 +63,15 @@ function setup() {
 }
 
 function draw() {
-  background(240, 237, 232); // #f0ede8
+  background("#f0ede8");
 
-  // Paint layer behind overlay
+  // paint layer behind overlay
   image(paintLayer, 0, 0, width, height);
 
-  // Phrase overlay on top of paint
+  // phrase overlay on top of paint
   image(imgs[currentIdx], 0, 0, width, height);
 
-  // Spray while mouse held
+  // spray while mouse held
   if (mouseIsPressed && mouseButton === LEFT) {
     spray(mouseX, mouseY);
   }
@@ -75,21 +80,17 @@ function draw() {
   drawCursorRing();
 }
 
-// ─── Mask builder ──────────────────────────────────────────────────────
-// Samples the image's alpha channel into a tiny MASK_W×MASK_H greyscale
-// graphic: white = paintable, black = blocked (stroke outline or outside bbox).
 function buildMask(img) {
   const W = img.width;
   const H = img.height;
 
   img.loadPixels();
 
-  // Find bounding box of alpha=0 pixels (the stroke outlines)
+
   let rmin = H, rmax = 0, cmin = W, cmax = 0;
   for (let y = 0; y < H; y++) {
     for (let x = 0; x < W; x++) {
-      const a = img.pixels[(y * W + x) * 4 + 3];
-      if (a === 0) {
+      if (img.pixels[(y * W + x) * 4 + 3] === 0) {
         if (y < rmin) rmin = y;
         if (y > rmax) rmax = y;
         if (x < cmin) cmin = x;
@@ -103,39 +104,30 @@ function buildMask(img) {
   cmin = max(0, cmin - pad);
   cmax = min(W - 1, cmax + pad);
 
-  // Build full-res binary array then downsample into a p5.Graphics
-  const g = createGraphics(MASK_W, MASK_H);
-  g.pixelDensity(1);
-  g.loadPixels();
-
+  const arr = new Uint8Array(MASK_W * MASK_H);
   for (let row = 0; row < MASK_H; row++) {
     for (let col = 0; col < MASK_W; col++) {
-      const srcX = round((col / MASK_W) * W);
-      const srcY = round((row / MASK_H) * H);
-      const a    = img.pixels[(srcY * W + srcX) * 4 + 3];
+      const srcX   = round((col / MASK_W) * (W - 1));
+      const srcY   = round((row / MASK_H) * (H - 1));
+      const alpha  = img.pixels[(srcY * W + srcX) * 4 + 3];
       const inBbox = srcX >= cmin && srcX <= cmax && srcY >= rmin && srcY <= rmax;
-      const v    = (a > 0 && inBbox) ? 255 : 0;
-      const i    = (row * MASK_W + col) * 4;
-      g.pixels[i] = g.pixels[i+1] = g.pixels[i+2] = v;
-      g.pixels[i+3] = 255;
+      arr[row * MASK_W + col] = (alpha === 0 && inBbox) ? 1 : 0;
     }
   }
-  g.updatePixels();
-  return g;
+  return arr;
 }
 
-// ─── Hit test ──────────────────────────────────────────────────────────
+// hitbox testing
 function isPaintable(cx, cy) {
-  const g = masks[currentIdx];
-  if (!g) return false;
-  const col = round((cx / width)  * MASK_W);
-  const row = round((cy / height) * MASK_H);
+  const arr = masks[currentIdx];
+  if (!arr) return false;
+  const col = round((cx / width)  * (MASK_W - 1));
+  const row = round((cy / height) * (MASK_H - 1));
   if (col < 0 || row < 0 || col >= MASK_W || row >= MASK_H) return false;
-  g.loadPixels();
-  return g.pixels[(row * MASK_W + col) * 4] > 128;
+  return arr[row * MASK_W + col] === 1;
 }
 
-// ─── Spray paint ───────────────────────────────────────────────────────
+// spray paint
 function spray(x, y) {
   paintLayer.noStroke();
   paintLayer.fill(currentColor);
@@ -150,7 +142,7 @@ function spray(x, y) {
   }
 }
 
-// ─── Cursor ring ───────────────────────────────────────────────────────
+// cursor design
 function drawCursorRing() {
   noFill();
   stroke(currentColor);
@@ -168,15 +160,15 @@ function setLineDash(pattern) {
   drawingContext.setLineDash(pattern);
 }
 
-// ─── UI buttons ────────────────────────────────────────────────────────
-// Drawn entirely in p5 — no DOM elements needed.
+// buttons
+
 const BTN_H    = 36;
-const BTN_PAD  = 12; // horizontal padding inside pill
+const BTN_PAD  = 12;
 const BTN_GAP  = 8;
-const UI_H     = 60; // bottom bar height
+const UI_H     = 60;
 
 function buildButtons() {
-  // Measure label widths and store button rects
+  // measure label widths and store button rects
   textSize(13);
   buttons = [];
   let x = 20;
@@ -192,7 +184,7 @@ function buildButtons() {
 function drawUI() {
   // Bar background
   noStroke();
-  fill(242, 242, 250); // #F2F2FA
+  fill("#F2F2FA");
   rect(0, height - UI_H, width, UI_H);
 
   // Top border
@@ -220,7 +212,7 @@ function drawUI() {
     text(PHRASES[btn.i].label, btn.x + btn.w / 2, btn.y + btn.h / 2);
   }
 
-  // Hint text
+  // hint text
   fill(136);
   noStroke();
   textSize(12);
@@ -230,7 +222,6 @@ function drawUI() {
   textStyle(NORMAL);
 }
 
-// ─── Input ─────────────────────────────────────────────────────────────
 function mousePressed() {
   // Check button clicks
   for (const btn of buttons) {
